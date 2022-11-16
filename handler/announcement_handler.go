@@ -7,6 +7,7 @@ import (
 	"nurul-iman-blok-m/announcement"
 	"nurul-iman-blok-m/helper"
 	"nurul-iman-blok-m/model"
+	"strings"
 	"time"
 )
 
@@ -41,7 +42,13 @@ func (h *announcementHandler) AddAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	path := fmt.Sprintf("images/announcement-%s-%s", input.Slug, time.Now().Format("2006-02-01"))
+	extenstionFile := ""
+	fileName := strings.Split(fileImage.Filename, ".")
+
+	if len(fileName) == 2 {
+		extenstionFile = fileName[1]
+	}
+	path := fmt.Sprintf("images/announcement-%s-%s.%s", input.Slug, time.Now().Format("2006-02-01"), extenstionFile)
 	errUploadBanner := c.SaveUploadedFile(fileImage, path)
 
 	if errUploadBanner != nil {
