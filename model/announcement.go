@@ -8,7 +8,8 @@ type Announcement struct {
 	Description string `gorm:"type:text;not null"`
 	Images      string `gorm:"size:100;not null"`
 	User        User
-	UserID      uint `gorm:"index;not null"`
+	UserID      uint   `gorm:"index;not null"`
+	Slug        string `gorm:"size:255;not null"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

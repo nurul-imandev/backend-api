@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
+	"nurul-iman-blok-m/announcement"
 	"nurul-iman-blok-m/auth"
 	"nurul-iman-blok-m/database"
 	"nurul-iman-blok-m/handler"
@@ -18,20 +19,25 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	roleRepository := role.NewRepository(db)
+	announcementRepository := announcement.NewRepositoryAnnouncement(db)
 
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
 	roleService := role.NewRoleService(roleRepository)
+	announcementService := announcement.NewServiceAnnouncement(announcementRepository)
 
 	userHandler := handler.NewUserHandler(userService, authService)
 	roleHandler := handler.NewRoleHandler(roleService)
+	announcementHandler := handler.NewHandlerAnnouncement(announcementService)
 
 	router := gin.Default()
+	router.Static("/images", "./images")
 	api := router.Group("/api/v1")
 	api.POST("/user/register", userHandler.RegisterUser)
 	api.POST("/user/login", userHandler.LoginUser)
 	api.POST("/role/add", authMiddleware(authService, userService), roleHandler.SaveRole)
 	api.GET("/roles", authMiddleware(authService, userService), roleHandler.GetRoles)
+	api.POST("/announcement/add", authMiddleware(authService, userService), announcementHandler.AddAnnouncement)
 
 	router.Run(":8080")
 }

@@ -7,7 +7,7 @@ import (
 
 func DatabaseMigration() {
 	db := database.Db()
-	errMigrate := db.AutoMigrate(&model.User{}, &model.Role{}, &model.Announcement{}, &model.Article{}, &model.Category{}, &model.Ustadz{}, &model.StudyRundown{})
+	errMigrate := db.AutoMigrate(&model.User{}, &model.Role{}, &model.Announcement{}, &model.Article{}, &model.Category{}, &model.Ustadz{}, &model.StudyRundown{}, &model.StudyVideo{})
 	if errMigrate != nil {
 		return
 	}
