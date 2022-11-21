@@ -38,6 +38,7 @@ func main() {
 	api.POST("/role/add", authMiddleware(authService, userService), roleHandler.SaveRole)
 	api.GET("/roles", authMiddleware(authService, userService), roleHandler.GetRoles)
 	api.POST("/announcement/add", authMiddleware(authService, userService), announcementHandler.AddAnnouncement)
+	api.GET("/announcements", announcementHandler.GetAllAnnouncement)
 
 	router.Run(":8080")
 }

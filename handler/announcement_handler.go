@@ -3,10 +3,12 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
 	"nurul-iman-blok-m/announcement"
 	"nurul-iman-blok-m/helper"
 	"nurul-iman-blok-m/model"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -70,4 +72,46 @@ func (h *announcementHandler) AddAnnouncement(c *gin.Context) {
 	response := helper.ApiResponse("Success to add announcement", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
+}
+
+func (h *announcementHandler) GetAllAnnouncement(c *gin.Context) {
+	page := c.Request.URL.Query().Get("page")
+	perPage := c.Request.URL.Query().Get("per_page")
+
+	paginate := paginateList(page, perPage)
+
+	announcements, count, err := h.service.GetListAnnouncement(paginate)
+	if err != nil {
+		response := helper.ApiResponse("Error to get announcements", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pageString, _ := strconv.Atoi(page)
+	pageSizeString, _ := strconv.Atoi(perPage)
+
+	response := helper.ApiResponseList("List of roles", http.StatusOK, "success", pageString, pageSizeString, count, announcement.AnnouncementsFormat(announcements))
+	c.JSON(http.StatusOK, response)
+}
+
+func paginateList(page string, perPage string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		fmt.Println("page :", page)
+		fmt.Println("per_page :", perPage)
+		pageValue, _ := strconv.Atoi(page)
+		if pageValue == 0 {
+			pageValue = 1
+		}
+
+		perPageValue, _ := strconv.Atoi(perPage)
+		switch {
+		case perPageValue > 100:
+			perPageValue = 100
+		case perPageValue <= 0:
+			perPageValue = 10
+		}
+
+		offset := (pageValue - 1) * perPageValue // (1 - 1) * 5
+		return db.Offset(offset).Limit(perPageValue)
+	}
 }

@@ -7,10 +7,24 @@ type Response struct {
 	Data interface{} `json:"data"`
 }
 
+type ResponseList struct {
+	Info InfoList    `json:"info"`
+	Data interface{} `json:"data"`
+}
+
 type Info struct {
 	Message string `json:"message"`
 	Code    int    `json:"code"`
 	Status  string `json:"status"`
+}
+
+type InfoList struct {
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+	Status  string `json:"status"`
+	Page    int    `json:"page"`
+	PerPage int    `json:"per_page"`
+	Count   int    `json:"count"`
 }
 
 func ApiResponse(message string, code int, status string, data interface{}) Response {
@@ -21,6 +35,24 @@ func ApiResponse(message string, code int, status string, data interface{}) Resp
 	}
 
 	jsonResponse := Response{
+		Info: info,
+		Data: data,
+	}
+
+	return jsonResponse
+}
+
+func ApiResponseList(message string, code int, status string, page int, pageSize int, count int, data interface{}) ResponseList {
+	info := InfoList{
+		Message: message,
+		Code:    code,
+		Status:  status,
+		Page:    page,
+		PerPage: pageSize,
+		Count:   count,
+	}
+
+	jsonResponse := ResponseList{
 		Info: info,
 		Data: data,
 	}
