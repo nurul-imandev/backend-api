@@ -90,7 +90,7 @@ func (h *announcementHandler) GetAllAnnouncement(c *gin.Context) {
 	pageString, _ := strconv.Atoi(page)
 	pageSizeString, _ := strconv.Atoi(perPage)
 
-	response := helper.ApiResponseList("List of roles", http.StatusOK, "success", pageString, pageSizeString, count, announcement.AnnouncementsFormat(announcements))
+	response := helper.ApiResponseList("List Announcement", http.StatusOK, "success", pageString, pageSizeString, count, announcement.AnnouncementsFormat(announcements))
 	c.JSON(http.StatusOK, response)
 }
 
@@ -114,4 +114,24 @@ func paginateList(page string, perPage string) func(db *gorm.DB) *gorm.DB {
 		offset := (pageValue - 1) * perPageValue // (1 - 1) * 5
 		return db.Offset(offset).Limit(perPageValue)
 	}
+}
+
+func (h *announcementHandler) GetDetailAnnouncement(c *gin.Context) {
+	var input announcement.AnnouncementDetailInput
+	err := c.ShouldBindUri(&input)
+	if err != nil {
+		response := helper.ApiResponse("Announcement detail not found", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	announcementDetail, errDetail := h.service.GetDetailAnnouncement(input)
+	if errDetail != nil {
+		response := helper.ApiResponse("Failed to get detail announcement", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.ApiResponse("Announcement Detail", http.StatusOK, "success", announcement.AnnouncementListFormat(announcementDetail))
+	c.JSON(http.StatusOK, response)
 }

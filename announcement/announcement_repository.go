@@ -10,6 +10,7 @@ type AnnouncementRepository interface {
 	GetUserName(announcement model.Announcement, userId uint) (model.Announcement, error)
 	GetRoleForException(user model.User) (model.User, error)
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
+	DetailAnnouncement(ID uint) (model.Announcement, error)
 }
 
 type announcementRepository struct {
@@ -78,4 +79,13 @@ func (r *announcementRepository) GetListAnnouncement(list func(db *gorm.DB) *gor
 	totalCount := int64(0)
 	r.database.Find(&announcements).Count(&totalCount)
 	return listAnnouncement, int(totalCount), nil
+}
+
+func (r *announcementRepository) DetailAnnouncement(ID uint) (model.Announcement, error) {
+	var announcement model.Announcement
+	err := r.database.Preload("User").Where("id = ?", ID).Find(&announcement).Error
+	if err != nil {
+		return announcement, err
+	}
+	return announcement, nil
 }

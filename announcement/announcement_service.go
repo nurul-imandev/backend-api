@@ -9,6 +9,7 @@ import (
 type AnnouncementService interface {
 	AddAnnouncement(input AnnouncementInput, imageLocation string) (model.Announcement, string, error)
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
+	GetDetailAnnouncement(input AnnouncementDetailInput) (model.Announcement, error)
 }
 
 type announcementService struct {
@@ -51,4 +52,13 @@ func (s *announcementService) GetListAnnouncement(list func(db *gorm.DB) *gorm.D
 		return announcements, 0, err
 	}
 	return announcements, count, err
+}
+
+func (s *announcementService) GetDetailAnnouncement(input AnnouncementDetailInput) (model.Announcement, error) {
+	data, err := s.repository.DetailAnnouncement(input.ID)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
 }

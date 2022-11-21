@@ -9,3 +9,7 @@ type AnnouncementInput struct {
 	UserID      uint
 	User        model.User
 }
+
+type AnnouncementDetailInput struct {
+	ID uint `uri:"id" binding:"required"`
+}
