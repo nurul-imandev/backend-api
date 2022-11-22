@@ -31,10 +31,13 @@ func (r *userRepository) SaveUser(user model.User) (model.User, error) {
 
 func (r *userRepository) FindByID(ID uint) (model.User, error) {
 	var user model.User
+	var role model.Role
 	err := r.db.Where("id = ?", ID).Find(&user).Error
 	if err != nil {
 		return user, err
 	}
+	r.db.Where("id = ?", user.RoleID).Find(&role)
+	user.Role = model.Role{RoleName: role.RoleName}
 
 	return user, nil
 }

@@ -3,14 +3,15 @@ package announcement
 import (
 	"gorm.io/gorm"
 	"nurul-iman-blok-m/model"
+	"os"
 )
 
 type AnnouncementRepository interface {
 	AddAnnouncement(announcement model.Announcement) (model.Announcement, error)
 	GetUserName(announcement model.Announcement, userId uint) (model.Announcement, error)
-	GetRoleForException(user model.User) (model.User, error)
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
 	DetailAnnouncement(ID uint) (model.Announcement, error)
+	DeleteAnnouncement(ID uint) error
 }
 
 type announcementRepository struct {
@@ -38,16 +39,6 @@ func (r *announcementRepository) GetUserName(announcement model.Announcement, us
 	}
 
 	return announcement, nil
-}
-
-func (r *announcementRepository) GetRoleForException(user model.User) (model.User, error) {
-	userRole := user
-	err := r.database.Preload("Role").Find(&userRole).Error
-	if err != nil {
-		return userRole, err
-	}
-
-	return userRole, nil
 }
 
 func (r *announcementRepository) GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error) {
@@ -88,4 +79,20 @@ func (r *announcementRepository) DetailAnnouncement(ID uint) (model.Announcement
 		return announcement, err
 	}
 	return announcement, nil
+}
+
+func (r *announcementRepository) DeleteAnnouncement(ID uint) error {
+	var announcement model.Announcement
+
+	r.database.Where("id = ?", ID).Find(&announcement)
+	errDeleteFile := os.Remove(announcement.Images)
+	if errDeleteFile != nil {
+		return errDeleteFile
+	}
+
+	err := r.database.Delete(&model.Announcement{}, ID).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -1,7 +1,6 @@
 package announcement
 
 import (
-	"errors"
 	"gorm.io/gorm"
 	"nurul-iman-blok-m/model"
 )
@@ -10,6 +9,7 @@ type AnnouncementService interface {
 	AddAnnouncement(input AnnouncementInput, imageLocation string) (model.Announcement, string, error)
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
 	GetDetailAnnouncement(input AnnouncementDetailInput) (model.Announcement, error)
+	DeleteAnnouncement(input AnnouncementDetailInput) error
 }
 
 type announcementService struct {
@@ -21,14 +21,6 @@ func NewServiceAnnouncement(repository AnnouncementRepository) *announcementServ
 }
 
 func (s *announcementService) AddAnnouncement(input AnnouncementInput, imageLocation string) (model.Announcement, string, error) {
-	userRole, errRole := s.repository.GetRoleForException(input.User)
-	if errRole != nil {
-		return model.Announcement{}, "", errRole
-	}
-
-	if userRole.Role.RoleName == "user" {
-		return model.Announcement{}, "", errors.New("access denied for create announcement")
-	}
 	announcement := model.Announcement{}
 	announcement.Title = input.Title
 	announcement.Description = input.Description
@@ -61,4 +53,12 @@ func (s *announcementService) GetDetailAnnouncement(input AnnouncementDetailInpu
 	}
 
 	return data, nil
+}
+
+func (s *announcementService) DeleteAnnouncement(input AnnouncementDetailInput) error {
+	err := s.repository.DeleteAnnouncement(input.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

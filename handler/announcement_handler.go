@@ -59,10 +59,15 @@ func (h *announcementHandler) AddAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
+	if currentUser.Role.RoleName == "user" {
+		response := helper.ApiResponse("You not have access for add", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
 
 	responseAddAnnouncement, createdBy, errAdd := h.service.AddAnnouncement(input, path)
 	if errAdd != nil {
-		response := helper.ApiResponse("Failed to add announcement or", http.StatusBadRequest, "error", nil)
+		response := helper.ApiResponse("Failed to add announcement", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -133,5 +138,29 @@ func (h *announcementHandler) GetDetailAnnouncement(c *gin.Context) {
 	}
 
 	response := helper.ApiResponse("Announcement Detail", http.StatusOK, "success", announcement.AnnouncementListFormat(announcementDetail))
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *announcementHandler) DeleteAnnouncement(c *gin.Context) {
+	var input announcement.AnnouncementDetailInput
+	err := c.ShouldBindUri(&input)
+	if err != nil {
+		response := helper.ApiResponse("Delete Failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	currentUser := c.MustGet("currentUser").(model.User)
+	if currentUser.Role.RoleName == "user" {
+		response := helper.ApiResponse("You not have access for delete", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	errDelete := h.service.DeleteAnnouncement(input)
+	if errDelete != nil {
+		response := helper.ApiResponse("Delete failed", http.StatusBadRequest, "error", errDelete)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := helper.ApiResponse("Delete Success", http.StatusOK, "Success", nil)
 	c.JSON(http.StatusOK, response)
 }

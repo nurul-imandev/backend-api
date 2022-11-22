@@ -40,6 +40,7 @@ func main() {
 	api.POST("/announcement/add", authMiddleware(authService, userService), announcementHandler.AddAnnouncement)
 	api.GET("/announcements", announcementHandler.GetAllAnnouncement)
 	api.GET("/announcements/:id", announcementHandler.GetDetailAnnouncement)
+	api.DELETE("/announcements/:id", authMiddleware(authService, userService), announcementHandler.DeleteAnnouncement)
 
 	router.Run(":8080")
 }
