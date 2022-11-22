@@ -41,6 +41,7 @@ func main() {
 	api.GET("/announcements", announcementHandler.GetAllAnnouncement)
 	api.GET("/announcements/:id", announcementHandler.GetDetailAnnouncement)
 	api.DELETE("/announcements/:id", authMiddleware(authService, userService), announcementHandler.DeleteAnnouncement)
+	api.PUT("/announcements/:id", authMiddleware(authService, userService), announcementHandler.UpdateAnnouncement)
 
 	router.Run(":8080")
 }

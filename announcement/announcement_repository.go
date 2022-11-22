@@ -12,6 +12,7 @@ type AnnouncementRepository interface {
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
 	DetailAnnouncement(ID uint) (model.Announcement, error)
 	DeleteAnnouncement(ID uint) error
+	Update(announcement model.Announcement) (model.Announcement, error)
 }
 
 type announcementRepository struct {
@@ -95,4 +96,20 @@ func (r *announcementRepository) DeleteAnnouncement(ID uint) error {
 		return err
 	}
 	return nil
+}
+
+func (r *announcementRepository) Update(announcement model.Announcement) (model.Announcement, error) {
+	var currentAnnouncement model.Announcement
+	r.database.Where("id = ?", announcement.ID).Find(&currentAnnouncement)
+	if announcement.Images != currentAnnouncement.Images {
+		errDeleteFile := os.Remove(currentAnnouncement.Images)
+		if errDeleteFile != nil {
+			return announcement, errDeleteFile
+		}
+	}
+	err := r.database.Save(&announcement).Error
+	if err != nil {
+		return announcement, err
+	}
+	return announcement, nil
 }

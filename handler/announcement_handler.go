@@ -164,3 +164,83 @@ func (h *announcementHandler) DeleteAnnouncement(c *gin.Context) {
 	response := helper.ApiResponse("Delete Success", http.StatusOK, "Success", nil)
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *announcementHandler) UpdateAnnouncement(c *gin.Context) {
+	var inputID announcement.AnnouncementDetailInput
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.ApiResponse("Failed To Update because ID not found", http.StatusBadRequest, "Error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var inputUpdate announcement.AnnouncementUpdateInput
+	errInputUpdate := c.ShouldBind(&inputUpdate)
+
+	if errInputUpdate != nil {
+		errors := helper.FormatValidationError(err)
+		errMessage := gin.H{"errors": errors}
+
+		response := helper.ApiResponse("You must completed field", http.StatusUnprocessableEntity, "error", errMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	fileImage, _ := c.FormFile("banner")
+	currentUser := c.MustGet("currentUser").(model.User)
+
+	if fileImage != nil {
+		extenstionFile := ""
+		fileName := strings.Split(fileImage.Filename, ".")
+
+		if len(fileName) == 2 {
+			extenstionFile = fileName[1]
+		}
+		path := fmt.Sprintf("images/announcement-update-%s.%s", time.Now().Format("2006-02-01"), extenstionFile)
+		errUploadBanner := c.SaveUploadedFile(fileImage, path)
+
+		if errUploadBanner != nil {
+			fmt.Println("path-error")
+			response := helper.ApiResponse("Failed to upload banner image", http.StatusBadRequest, "error", nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		if currentUser.Role.RoleName == "user" {
+			response := helper.ApiResponse("You not have access for update", http.StatusBadRequest, "error", nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		updateData, errUpdateData := h.service.UpdateAnnouncement(inputID, inputUpdate, path)
+		if errUpdateData != nil {
+			response := helper.ApiResponse("Failed to update announcement", http.StatusBadRequest, "error", nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		formatter := announcement.AnnouncementFormat(updateData, updateData.User.Name)
+
+		response := helper.ApiResponse("Success to update announcement", http.StatusOK, "success", formatter)
+
+		c.JSON(http.StatusOK, response)
+	} else {
+		if currentUser.Role.RoleName == "user" {
+			response := helper.ApiResponse("You not have access for update", http.StatusBadRequest, "error", nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+		updateData, errUpdateData := h.service.UpdateAnnouncement(inputID, inputUpdate, "")
+		if errUpdateData != nil {
+			response := helper.ApiResponse("Failed to update announcement", http.StatusBadRequest, "error", nil)
+			c.JSON(http.StatusBadRequest, response)
+			return
+		}
+
+		formatter := announcement.AnnouncementFormat(updateData, updateData.User.Name)
+
+		response := helper.ApiResponse("Success to update announcement", http.StatusOK, "success", formatter)
+
+		c.JSON(http.StatusOK, response)
+	}
+}

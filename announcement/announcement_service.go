@@ -3,6 +3,7 @@ package announcement
 import (
 	"gorm.io/gorm"
 	"nurul-iman-blok-m/model"
+	"strings"
 )
 
 type AnnouncementService interface {
@@ -10,6 +11,7 @@ type AnnouncementService interface {
 	GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error)
 	GetDetailAnnouncement(input AnnouncementDetailInput) (model.Announcement, error)
 	DeleteAnnouncement(input AnnouncementDetailInput) error
+	UpdateAnnouncement(input AnnouncementDetailInput, updateData AnnouncementUpdateInput, updatePath string) (model.Announcement, error)
 }
 
 type announcementService struct {
@@ -61,4 +63,29 @@ func (s *announcementService) DeleteAnnouncement(input AnnouncementDetailInput) 
 		return err
 	}
 	return nil
+}
+
+func (s *announcementService) UpdateAnnouncement(input AnnouncementDetailInput, updateData AnnouncementUpdateInput, updatePath string) (model.Announcement, error) {
+	data, err := s.repository.DetailAnnouncement(input.ID)
+	if err != nil {
+		return data, nil
+	}
+	if updatePath != "" {
+		data.Images = updatePath
+	}
+
+	convertTitleToLowerCase := strings.ToLower(updateData.Title)
+	sliceTitle := strings.Split(convertTitleToLowerCase, " ")
+	slug := strings.Join(sliceTitle, "-")
+
+	data.Title = updateData.Title
+	data.Description = updateData.Description
+	data.Slug = slug
+
+	update, errUpdate := s.repository.Update(data)
+	if errUpdate != nil {
+		return update, errUpdate
+	}
+
+	return update, nil
 }
