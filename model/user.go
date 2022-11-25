@@ -12,6 +12,7 @@ type User struct {
 	RoleID        uint `gorm:"index;NOT NULL"`
 	Announcements []Announcement
 	Articles      []Article
+	StudyRundown  []StudyRundown
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }

@@ -21,7 +21,11 @@ func NewRepository(db *gorm.DB) *userRepository {
 }
 
 func (r *userRepository) SaveUser(user model.User) (model.User, error) {
+	var role model.Role
 	err := r.db.Create(&user).Error
+	r.db.Where("id = ?", user.RoleID).Find(&role)
+
+	user.Role = model.Role{RoleName: role.RoleName}
 	if err != nil {
 		return user, err
 	}

@@ -59,7 +59,7 @@ func (h *announcementHandler) AddAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	if currentUser.Role.RoleName == "user" {
+	if currentUser.Role.RoleName == "user" || currentUser.Role.RoleName == "ustadz" {
 		response := helper.ApiResponse("You not have access for add", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
@@ -206,7 +206,7 @@ func (h *announcementHandler) UpdateAnnouncement(c *gin.Context) {
 			return
 		}
 
-		if currentUser.Role.RoleName == "user" {
+		if currentUser.Role.RoleName == "user" || currentUser.Role.RoleName == "ustadz" {
 			response := helper.ApiResponse("You not have access for update", http.StatusBadRequest, "error", nil)
 			c.JSON(http.StatusBadRequest, response)
 			return

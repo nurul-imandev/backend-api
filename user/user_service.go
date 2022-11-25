@@ -35,9 +35,8 @@ func (u *userService) RegisterUser(input RegisterUserInput) (model.User, string,
 	if errUser != nil {
 		return newUser, "", errUser
 	}
-	roleName, _ := u.repository.GetRoleForResponse(user)
 
-	return newUser, roleName.Role.RoleName, nil
+	return newUser, newUser.Role.RoleName, nil
 }
 
 func (u *userService) GetUserByID(ID uint) (model.User, error) {

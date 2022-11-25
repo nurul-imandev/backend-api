@@ -7,10 +7,9 @@ type StudyRundown struct {
 	Title        string `gorm:"size:100;not null"`
 	OnScheduled  int    `gorm:"type:tinyInt"`
 	ScheduleDate string `gorm:"size:100; not null"`
-	Ustadz       Ustadz
-	UstadzID     uint
-	StartTime    string `gorm:"size:100;not null"`
-	EndTime      string `gorm:"size:100;not null"`
+	User         User
+	UserID       uint   `gorm:"index;not null"`
+	Time         string `gorm:"size:100;not null"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
