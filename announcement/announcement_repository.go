@@ -45,7 +45,7 @@ func (r *announcementRepository) GetUserName(announcement model.Announcement, us
 func (r *announcementRepository) GetListAnnouncement(list func(db *gorm.DB) *gorm.DB) ([]model.Announcement, int, error) {
 	var announcements []model.Announcement
 	var user model.User
-	listAnnouncement := []model.Announcement{}
+	var listAnnouncement []model.Announcement
 
 	err := r.database.Scopes(list).Find(&announcements).Error
 	for _, item := range announcements {

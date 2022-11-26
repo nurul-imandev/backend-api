@@ -8,7 +8,7 @@ import (
 type StudyRepository interface {
 	AddStudy(study model.StudyRundown) (model.StudyRundown, error)
 	GetListUstadName() ([]model.User, error)
-	//GetListStudy(list func(db *gorm.DB) *gorm.DB)([]model.StudyRundown, error)
+	GetListStudies(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error)
 	//DetailStudy(ID uint)(model.StudyRundown, error)
 	//DeleteStudy(ID uint) error
 	//UpdateStudy(study model.StudyRundown)(model.StudyRundown, error)
@@ -38,7 +38,7 @@ func (s *StudyRepositoryImpl) AddStudy(study model.StudyRundown) (model.StudyRun
 func (s *StudyRepositoryImpl) GetListUstadName() ([]model.User, error) {
 	var users []model.User
 	var role model.Role
-	ustadzName := []model.User{}
+	var ustadzName []model.User
 
 	err := s.db.Find(&users).Error
 	if err != nil {
@@ -60,4 +60,37 @@ func (s *StudyRepositoryImpl) GetListUstadName() ([]model.User, error) {
 
 	return ustadzName, nil
 
+}
+
+func (s *StudyRepositoryImpl) GetListStudies(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error) {
+	var rundowns []model.StudyRundown
+	var user model.User
+	var listsStudyRundowns []model.StudyRundown
+
+	err := s.db.Scopes(list).Find(&rundowns).Error
+
+	for _, item := range rundowns {
+		s.db.Where("id = ?", item.UserID).Find(&user)
+		itemRundown := model.StudyRundown{
+			ID:           item.ID,
+			Title:        item.Title,
+			OnScheduled:  item.OnScheduled,
+			ScheduleDate: item.ScheduleDate,
+			User:         model.User{Name: user.Name},
+			UserID:       item.UserID,
+			Time:         item.Time,
+			CreatedAt:    item.CreatedAt,
+			UpdatedAt:    item.UpdatedAt,
+		}
+
+		listsStudyRundowns = append(listsStudyRundowns, itemRundown)
+		user = model.User{}
+	}
+
+	if err != nil {
+		return listsStudyRundowns, 0, err
+	}
+	totalCount := int64(0)
+	s.db.Find(&rundowns).Count(&totalCount)
+	return listsStudyRundowns, int(totalCount), nil
 }

@@ -6,6 +6,7 @@ import (
 	"nurul-iman-blok-m/helper"
 	"nurul-iman-blok-m/model"
 	"nurul-iman-blok-m/study_rundown"
+	"strconv"
 )
 
 type StudyRundownHandler struct {
@@ -59,5 +60,25 @@ func (h *StudyRundownHandler) GetListUstadzName(c *gin.Context) {
 	}
 
 	response := helper.ApiResponse("List ustadz", http.StatusOK, "success", study_rundown.ListUstadzJsonFormatter(name))
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *StudyRundownHandler) GetAllRundown(c *gin.Context) {
+	page := c.Request.URL.Query().Get("page")
+	perPage := c.Request.URL.Query().Get("per_page")
+
+	paginate := helper.PaginateList(page, perPage)
+
+	listStudy, count, err := h.service.GetListStudy(paginate)
+	if err != nil {
+		response := helper.ApiResponse("Error to get rundown", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	pageString, _ := strconv.Atoi(page)
+	pageSizeString, _ := strconv.Atoi(perPage)
+
+	response := helper.ApiResponseList("List Rundown", http.StatusOK, "success", pageString, pageSizeString, count, study_rundown.ListRundonwnFormatter(listStudy))
 	c.JSON(http.StatusOK, response)
 }

@@ -51,15 +51,7 @@ func main() {
 
 	api.GET("/user/ustadz", authMiddleware(authService, userService), studyRundownHandler.GetListUstadzName)
 	api.POST("/kajian/add", authMiddleware(authService, userService), studyRundownHandler.AddStudy)
-	//studyInput := study_rundown.StudyRundownInput{
-	//	Title:        "Birulwalidain",
-	//	OnScheduled:  true,
-	//	ScheduleDate: "12 Januari 2023",
-	//	UserID:       5,
-	//	Time:         "14:00 - 19:00",
-	//}
-	//
-	//studyRundownHandler.AddStudy(studyInput)
+	api.GET("/kajian", studyRundownHandler.GetAllRundown)
 
 	router.Run(":8080")
 }

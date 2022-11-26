@@ -1,6 +1,8 @@
 package study_rundown
 
-import "nurul-iman-blok-m/model"
+import (
+	"nurul-iman-blok-m/model"
+)
 
 type StudyRundownFormatResponse struct {
 	ID          uint   `json:"id"`
@@ -16,18 +18,18 @@ type UstadzFormatter struct {
 	Name string `json:"name"`
 }
 
-func StudyResponseFormat(announcement model.StudyRundown) StudyRundownFormatResponse {
+func StudyResponseFormat(rundown model.StudyRundown) StudyRundownFormatResponse {
 	onScheduled := false
-	if announcement.OnScheduled == 1 {
+	if rundown.OnScheduled == 1 {
 		onScheduled = true
 	}
 	return StudyRundownFormatResponse{
-		ID:          announcement.ID,
-		Title:       announcement.Title,
+		ID:          rundown.ID,
+		Title:       rundown.Title,
 		OnScheduled: onScheduled,
-		Date:        announcement.ScheduleDate,
-		Time:        announcement.Time,
-		UstadzName:  announcement.User.Name,
+		Date:        rundown.ScheduleDate,
+		Time:        rundown.Time,
+		UstadzName:  rundown.User.Name,
 	}
 }
 
@@ -47,4 +49,15 @@ func ListUstadzJsonFormatter(users []model.User) []UstadzFormatter {
 	}
 
 	return listFormatter
+}
+
+func ListRundonwnFormatter(rundowns []model.StudyRundown) []StudyRundownFormatResponse {
+	formatter := []StudyRundownFormatResponse{}
+
+	for _, rundown := range rundowns {
+		rundownFormatter := StudyResponseFormat(rundown)
+		formatter = append(formatter, rundownFormatter)
+	}
+
+	return formatter
 }

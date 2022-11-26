@@ -1,10 +1,15 @@
 package study_rundown
 
-import "nurul-iman-blok-m/model"
+import (
+	"fmt"
+	"gorm.io/gorm"
+	"nurul-iman-blok-m/model"
+)
 
 type StudyService interface {
 	AddStudy(input StudyRundownInput) (model.StudyRundown, error)
 	GetListUstadName() ([]model.User, error)
+	GetListStudy(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error)
 }
 
 type StudyServiceImpl struct {
@@ -41,4 +46,15 @@ func (s *StudyServiceImpl) GetListUstadName() ([]model.User, error) {
 	}
 
 	return ustadName, nil
+}
+
+func (s *StudyServiceImpl) GetListStudy(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error) {
+	rundowns, count, err := s.repository.GetListStudies(list)
+	for _, studyRundown := range rundowns {
+		fmt.Println("namanya adalah", studyRundown.User)
+	}
+	if err != nil {
+		return rundowns, 0, err
+	}
+	return rundowns, count, err
 }
