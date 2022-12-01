@@ -127,7 +127,7 @@ func (h *announcementHandler) DeleteAnnouncement(c *gin.Context) {
 		return
 	}
 	currentUser := c.MustGet("currentUser").(model.User)
-	if currentUser.Role.RoleName == "user" {
+	if currentUser.Role.RoleName == "admin" {
 		response := helper.ApiResponse("You not have access for delete", http.StatusBadRequest, "error", nil)
 		c.JSON(http.StatusBadRequest, response)
 		return
@@ -183,7 +183,7 @@ func (h *announcementHandler) UpdateAnnouncement(c *gin.Context) {
 			return
 		}
 
-		if currentUser.Role.RoleName == "user" || currentUser.Role.RoleName == "ustadz" {
+		if currentUser.Role.RoleName == "admin" {
 			response := helper.ApiResponse("You not have access for update", http.StatusBadRequest, "error", nil)
 			c.JSON(http.StatusBadRequest, response)
 			return

@@ -50,8 +50,10 @@ func main() {
 	api.PUT("/announcements/:id", authMiddleware(authService, userService), announcementHandler.UpdateAnnouncement)
 
 	api.GET("/user/ustadz", authMiddleware(authService, userService), studyRundownHandler.GetListUstadzName)
-	api.POST("/kajian/add", authMiddleware(authService, userService), studyRundownHandler.AddStudy)
-	api.GET("/kajian", studyRundownHandler.GetAllRundown)
+	api.POST("/rundown/add", authMiddleware(authService, userService), studyRundownHandler.AddStudy)
+	api.GET("/rundown", studyRundownHandler.GetAllRundown)
+	api.GET("/rundown/:id", studyRundownHandler.GetDetailStudyRundown)
+	api.DELETE("/rundown/:id", authMiddleware(authService, userService), studyRundownHandler.DeleteStudyRundown)
 
 	router.Run(":8080")
 }

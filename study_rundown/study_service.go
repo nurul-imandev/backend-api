@@ -1,7 +1,6 @@
 package study_rundown
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 	"nurul-iman-blok-m/model"
 )
@@ -10,6 +9,8 @@ type StudyService interface {
 	AddStudy(input StudyRundownInput) (model.StudyRundown, error)
 	GetListUstadName() ([]model.User, error)
 	GetListStudy(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error)
+	DetailStudy(input StudyRundownInputDetail) (model.StudyRundown, error)
+	DeleteStudy(input StudyRundownInputDetail) error
 }
 
 type StudyServiceImpl struct {
@@ -50,11 +51,25 @@ func (s *StudyServiceImpl) GetListUstadName() ([]model.User, error) {
 
 func (s *StudyServiceImpl) GetListStudy(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error) {
 	rundowns, count, err := s.repository.GetListStudies(list)
-	for _, studyRundown := range rundowns {
-		fmt.Println("namanya adalah", studyRundown.User)
-	}
 	if err != nil {
 		return rundowns, 0, err
 	}
 	return rundowns, count, err
+}
+
+func (s *StudyServiceImpl) DetailStudy(input StudyRundownInputDetail) (model.StudyRundown, error) {
+	data, err := s.repository.DetailStudy(input.ID)
+	if err != nil {
+		return data, err
+	}
+
+	return data, nil
+}
+
+func (s *StudyServiceImpl) DeleteStudy(input StudyRundownInputDetail) error {
+	err := s.repository.DeleteStudy(input.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

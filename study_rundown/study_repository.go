@@ -9,9 +9,9 @@ type StudyRepository interface {
 	AddStudy(study model.StudyRundown) (model.StudyRundown, error)
 	GetListUstadName() ([]model.User, error)
 	GetListStudies(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error)
-	//DetailStudy(ID uint)(model.StudyRundown, error)
-	//DeleteStudy(ID uint) error
-	//UpdateStudy(study model.StudyRundown)(model.StudyRundown, error)
+	DetailStudy(ID uint) (model.StudyRundown, error)
+	DeleteStudy(ID uint) error
+	UpdateStudy(study model.StudyRundown) (model.StudyRundown, error)
 }
 
 type StudyRepositoryImpl struct {
@@ -93,4 +93,32 @@ func (s *StudyRepositoryImpl) GetListStudies(list func(db *gorm.DB) *gorm.DB) ([
 	totalCount := int64(0)
 	s.db.Find(&rundowns).Count(&totalCount)
 	return listsStudyRundowns, int(totalCount), nil
+}
+
+func (s *StudyRepositoryImpl) DeleteStudy(ID uint) error {
+	var studyRundown model.StudyRundown
+
+	s.db.Where("id = ?", ID).Find(&studyRundown)
+	err := s.db.Delete(&model.StudyRundown{}, ID).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *StudyRepositoryImpl) DetailStudy(ID uint) (model.StudyRundown, error) {
+	var studyRundown model.StudyRundown
+	err := s.db.Preload("User").Where("id = ?", ID).Find(&studyRundown).Error
+	if err != nil {
+		return studyRundown, err
+	}
+	return studyRundown, nil
+}
+
+func (s *StudyRepositoryImpl) UpdateStudy(study model.StudyRundown) (model.StudyRundown, error) {
+	err := s.db.Save(&study).Error
+	if err != nil {
+		return study, err
+	}
+	return study, nil
 }

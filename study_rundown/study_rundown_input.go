@@ -7,3 +7,7 @@ type StudyRundownInput struct {
 	UserID       uint   `form:"user_id" binding:"required"`
 	Time         string `form:"time" binding:"required"`
 }
+
+type StudyRundownInputDetail struct {
+	ID uint `uri:"id" binding:"required"`
+}

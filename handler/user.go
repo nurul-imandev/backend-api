@@ -32,6 +32,8 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		return
 	}
 
+	// next for add user must be super admin
+
 	userInput, roleName, errInput := h.userService.RegisterUser(input)
 	if errInput != nil {
 		response := helper.ApiResponse("Register account failed", http.StatusBadRequest, "error", nil)
