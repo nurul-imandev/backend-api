@@ -126,3 +126,45 @@ func (h *StudyRundownHandler) DeleteStudyRundown(c *gin.Context) {
 	response := helper.ApiResponse("Delete Success", http.StatusOK, "Success", nil)
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *StudyRundownHandler) UpdateStudyRundown(c *gin.Context) {
+	var inputID study_rundown.StudyRundownInputDetail
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		response := helper.ApiResponse("Failed To Update because ID not found", http.StatusBadRequest, "Error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	var inputUpdate study_rundown.StudyRundownUpdateInput
+	errInputUpdate := c.ShouldBind(&inputUpdate)
+
+	if errInputUpdate != nil {
+		errors := helper.FormatValidationError(err)
+		errMessage := gin.H{"errors": errors}
+
+		response := helper.ApiResponse("You must completed field", http.StatusUnprocessableEntity, "error", errMessage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+	currentUser := c.MustGet("currentUser").(model.User)
+
+	if currentUser.Role.RoleName == "user" {
+		response := helper.ApiResponse("You not have access for update", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	updateData, errUpdateData := h.service.UpdateStudy(inputUpdate, inputID)
+	if errUpdateData != nil {
+		response := helper.ApiResponse("Failed to update announcement", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	formatter := study_rundown.StudyResponseFormat(updateData)
+
+	response := helper.ApiResponse("Success to update study rundown", http.StatusOK, "success", formatter)
+
+	c.JSON(http.StatusOK, response)
+
+}

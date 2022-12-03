@@ -54,6 +54,7 @@ func main() {
 	api.GET("/rundown", studyRundownHandler.GetAllRundown)
 	api.GET("/rundown/:id", studyRundownHandler.GetDetailStudyRundown)
 	api.DELETE("/rundown/:id", authMiddleware(authService, userService), studyRundownHandler.DeleteStudyRundown)
+	api.PUT("/rundown/:id", authMiddleware(authService, userService), studyRundownHandler.UpdateStudyRundown)
 
 	router.Run(":8080")
 }

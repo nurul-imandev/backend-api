@@ -11,3 +11,10 @@ type StudyRundownInput struct {
 type StudyRundownInputDetail struct {
 	ID uint `uri:"id" binding:"required"`
 }
+
+type StudyRundownUpdateInput struct {
+	Title        string `form:"title"`
+	OnScheduled  bool   `form:"on_scheduled"`
+	ScheduleDate string `form:"schedule_date"`
+	Time         string `form:"time"`
+}

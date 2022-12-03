@@ -11,6 +11,7 @@ type StudyService interface {
 	GetListStudy(list func(db *gorm.DB) *gorm.DB) ([]model.StudyRundown, int, error)
 	DetailStudy(input StudyRundownInputDetail) (model.StudyRundown, error)
 	DeleteStudy(input StudyRundownInputDetail) error
+	UpdateStudy(dataUpdate StudyRundownUpdateInput, input StudyRundownInputDetail) (model.StudyRundown, error)
 }
 
 type StudyServiceImpl struct {
@@ -72,4 +73,27 @@ func (s *StudyServiceImpl) DeleteStudy(input StudyRundownInputDetail) error {
 		return err
 	}
 	return nil
+}
+
+func (s *StudyServiceImpl) UpdateStudy(dataUpdate StudyRundownUpdateInput, input StudyRundownInputDetail) (model.StudyRundown, error) {
+	data, err := s.repository.DetailStudy(input.ID)
+	if err != nil {
+		return data, nil
+	}
+
+	data.Title = dataUpdate.Title
+	data.ScheduleDate = dataUpdate.ScheduleDate
+	if dataUpdate.OnScheduled {
+		data.OnScheduled = 1
+	} else {
+		data.OnScheduled = 0
+	}
+	data.Time = dataUpdate.Time
+
+	update, errUpdate := s.repository.UpdateStudy(data)
+	if errUpdate != nil {
+		return update, errUpdate
+	}
+
+	return update, nil
 }
